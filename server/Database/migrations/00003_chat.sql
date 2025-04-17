@@ -1,11 +1,12 @@
 -- +goose Up
+-- +goose StatementBegin
 DO $$
 BEGIN
     IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'chat_type') THEN
         CREATE TYPE chat_type AS ENUM ('text', 'image', 'emoji', 'pdf', 'video');
     END IF;
-END
-$$;
+END $$;
+-- +goose StatementEnd
 
 CREATE TABLE IF NOT EXISTS chat (
   id UUID PRIMARY KEY,
