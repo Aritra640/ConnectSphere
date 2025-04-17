@@ -18,6 +18,21 @@ type Chat struct {
 	UserID    sql.NullInt32
 }
 
+type ChatGroup struct {
+	ID        uuid.UUID
+	Name      string
+	About     string
+	Ppic      sql.NullString
+	CreatedAt sql.NullTime
+}
+
+type ChatGroupMember struct {
+	GroupID  uuid.UUID
+	UserID   int32
+	IsAdmin  sql.NullBool
+	JoinedAt sql.NullTime
+}
+
 type User struct {
 	ID             int32
 	Username       string
