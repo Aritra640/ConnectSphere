@@ -1,0 +1,7 @@
+-- +goose Up
+ALTER TABLE chat 
+ADD COLUMN IF NOT EXISTS user_id INTEGER REFERENCES users(id) ON DELETE CASCADE;
+
+-- +goose Down
+ALTER TABLE chat 
+DROP COLUMN IF EXISTS user_id;

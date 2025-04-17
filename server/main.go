@@ -7,6 +7,8 @@ import (
 	"os"
 
 	"github.com/Aritra640/ConnectSphere/server/Database/db"
+	controllers "github.com/Aritra640/ConnectSphere/server/internal/Controllers"
+	ws "github.com/Aritra640/ConnectSphere/server/internal/WS/test_chat_room"
 	"github.com/Aritra640/ConnectSphere/server/internal/config"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
@@ -46,10 +48,10 @@ func main() {
   config.App.CTX = context.Background()
   config.App.QueryObj = db.New(pg)
 
-  e := echo.New() 
-  e.GET("/hello" , func(c echo.Context) error {
-    return c.JSON(200 , "hi hello there")
-  })
 
+  ws.Start_test_group()
+
+  e := echo.New() 
+  controllers.RoutesSetup(e)
   e.Logger.Fatal(e.Start(":8080"))
 }

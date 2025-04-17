@@ -6,7 +6,17 @@ package db
 
 import (
 	"database/sql"
+
+	"github.com/google/uuid"
 )
+
+type Chat struct {
+	ID        uuid.UUID
+	Content   string
+	Type      interface{}
+	CreatedAt sql.NullTime
+	UserID    sql.NullInt32
+}
 
 type User struct {
 	ID             int32
