@@ -34,6 +34,21 @@ type ChatGroupMember struct {
 	JoinedAt sql.NullTime
 }
 
+type ChatGroupMessage struct {
+	ChatID      uuid.UUID
+	ChatGroupID uuid.UUID
+	SenderID    int32
+	SendAt      sql.NullTime
+}
+
+type PersonalMessage struct {
+	ChatID     uuid.UUID
+	SenderID   int32
+	ReceiverID int32
+	IsSeen     bool
+	SendAt     sql.NullTime
+}
+
 type User struct {
 	ID             int32
 	Username       string

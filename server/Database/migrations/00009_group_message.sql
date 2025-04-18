@@ -1,0 +1,10 @@
+-- +goose Up
+CREATE TABLE IF NOT EXISTS chat_group_message (
+  chat_id UUID PRIMARY KEY REFERENCES chat(id) ON DELETE CASCADE,
+  chat_group_id UUID NOT NULL REFERENCES chat_group(id) ON DELETE CASCADE,
+  sender_id INTEGER NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+  send_at  TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
+-- +goose Down
+DROP TABLE IF EXISTS chat_group_message;
