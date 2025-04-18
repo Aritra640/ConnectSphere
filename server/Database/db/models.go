@@ -19,11 +19,12 @@ type Chat struct {
 }
 
 type ChatGroup struct {
-	ID        uuid.UUID
-	Name      string
-	About     string
-	Ppic      sql.NullString
-	CreatedAt sql.NullTime
+	ID                 uuid.UUID
+	Name               string
+	About              string
+	Ppic               sql.NullString
+	CreatedAt          sql.NullTime
+	RequiredPermission bool
 }
 
 type ChatGroupMember struct {

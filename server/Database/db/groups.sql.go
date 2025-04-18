@@ -13,16 +13,17 @@ import (
 )
 
 const createGroup = `-- name: CreateGroup :one
-INSERT INTO chat_group (id, name, about, ppic)
-VALUES ($1, $2, $3, $4)
-RETURNING id, name, about, ppic, created_at
+INSERT INTO chat_group (id, name, about, ppic , required_permission)
+VALUES ($1, $2, $3, $4 , $5)
+RETURNING id, name, about, ppic, created_at, required_permission
 `
 
 type CreateGroupParams struct {
-	ID    uuid.UUID
-	Name  string
-	About string
-	Ppic  sql.NullString
+	ID                 uuid.UUID
+	Name               string
+	About              string
+	Ppic               sql.NullString
+	RequiredPermission bool
 }
 
 func (q *Queries) CreateGroup(ctx context.Context, arg CreateGroupParams) (ChatGroup, error) {
@@ -31,6 +32,7 @@ func (q *Queries) CreateGroup(ctx context.Context, arg CreateGroupParams) (ChatG
 		arg.Name,
 		arg.About,
 		arg.Ppic,
+		arg.RequiredPermission,
 	)
 	var i ChatGroup
 	err := row.Scan(
@@ -39,6 +41,7 @@ func (q *Queries) CreateGroup(ctx context.Context, arg CreateGroupParams) (ChatG
 		&i.About,
 		&i.Ppic,
 		&i.CreatedAt,
+		&i.RequiredPermission,
 	)
 	return i, err
 }
@@ -54,7 +57,7 @@ func (q *Queries) DeleteGroup(ctx context.Context, id uuid.UUID) error {
 }
 
 const getGroupByID = `-- name: GetGroupByID :one
-SELECT id, name, about, ppic, created_at FROM chat_group
+SELECT id, name, about, ppic, created_at, required_permission FROM chat_group
 WHERE id = $1
 `
 
@@ -67,12 +70,13 @@ func (q *Queries) GetGroupByID(ctx context.Context, id uuid.UUID) (ChatGroup, er
 		&i.About,
 		&i.Ppic,
 		&i.CreatedAt,
+		&i.RequiredPermission,
 	)
 	return i, err
 }
 
 const listGroups = `-- name: ListGroups :many
-SELECT id, name, about, ppic, created_at FROM chat_group
+SELECT id, name, about, ppic, created_at, required_permission FROM chat_group
 ORDER BY created_at DESC
 LIMIT $1 OFFSET $2
 `
@@ -97,6 +101,7 @@ func (q *Queries) ListGroups(ctx context.Context, arg ListGroupsParams) ([]ChatG
 			&i.About,
 			&i.Ppic,
 			&i.CreatedAt,
+			&i.RequiredPermission,
 		); err != nil {
 			return nil, err
 		}
@@ -115,16 +120,18 @@ const updateGroupInfo = `-- name: UpdateGroupInfo :one
 UPDATE chat_group
 SET name = $2,
     about = $3,
-    ppic = $4
+    ppic = $4,
+    required_permission = $5
 WHERE id = $1
-RETURNING id, name, about, ppic, created_at
+RETURNING id, name, about, ppic, created_at, required_permission
 `
 
 type UpdateGroupInfoParams struct {
-	ID    uuid.UUID
-	Name  string
-	About string
-	Ppic  sql.NullString
+	ID                 uuid.UUID
+	Name               string
+	About              string
+	Ppic               sql.NullString
+	RequiredPermission bool
 }
 
 func (q *Queries) UpdateGroupInfo(ctx context.Context, arg UpdateGroupInfoParams) (ChatGroup, error) {
@@ -133,6 +140,7 @@ func (q *Queries) UpdateGroupInfo(ctx context.Context, arg UpdateGroupInfoParams
 		arg.Name,
 		arg.About,
 		arg.Ppic,
+		arg.RequiredPermission,
 	)
 	var i ChatGroup
 	err := row.Scan(
@@ -141,6 +149,7 @@ func (q *Queries) UpdateGroupInfo(ctx context.Context, arg UpdateGroupInfoParams
 		&i.About,
 		&i.Ppic,
 		&i.CreatedAt,
+		&i.RequiredPermission,
 	)
 	return i, err
 }
