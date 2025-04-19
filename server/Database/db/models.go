@@ -41,6 +41,19 @@ type ChatGroupMessage struct {
 	SendAt      sql.NullTime
 }
 
+type ChatGroupQueue struct {
+	UserID      int32
+	ChatGroupID uuid.UUID
+	IsAccepted  sql.NullBool
+	RequestedAt sql.NullTime
+}
+
+type Friend struct {
+	UserID    int32
+	FriendID  int32
+	CreatedAt sql.NullTime
+}
+
 type PersonalMessage struct {
 	ChatID     uuid.UUID
 	SenderID   int32
