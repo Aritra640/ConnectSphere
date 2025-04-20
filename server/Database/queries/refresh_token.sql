@@ -14,3 +14,7 @@ DELETE FROM refresh_token WHERE token = $1;
 
 -- name: DeleteRefreshTokenByUserID :exec 
 DELETE FROM refresh_token WHERE user_id = $1;
+
+
+-- name: GetRefreshTokenByUserId :one 
+SELECT * FROM refresh_token WHERE user_id = $1;

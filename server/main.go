@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"database/sql"
+	"errors"
 	"log"
 	"os"
 
@@ -18,40 +19,48 @@ import (
 
 func main() {
 
-	err := godotenv.Load(); if err != nil {
-    log.Println("Error : no .env file found")
-    panic(err)
-  }
+	err := godotenv.Load()
+	if err != nil {
+		log.Println("Error : no .env file found")
+		panic(err)
+	}
 
-  Database_url := os.Getenv("DATABASE_URL"); if Database_url == "" {
-    log.Println("Error: database url empty!")
-    panic("database empty!")
-  }
-  
-  pg,err := sql.Open("postgres" , Database_url); if err != nil {
-    log.Println("Error: cannot open database connection")
-    panic(err)
-  }
-  defer pg.Close() 
+	Database_url := os.Getenv("DATABASE_URL")
+	if Database_url == "" {
+		log.Println("Error: database url empty!")
+		panic("database empty!")
+	}
 
-  //Run migrations 
-  if err := goose.Up(pg, "./Database/migrations"); err != nil {
-    log.Println("migrations failed")
-    panic(err)
-  } else {
-    log.Println("migrations successfull!")
-  }
+	pg, err := sql.Open("postgres", Database_url)
+	if err != nil {
+		log.Println("Error: cannot open database connection")
+		panic(err)
+	}
+	defer pg.Close()
 
-  log.Printf("config.App is nil? %v\n", config.App == nil)
+	//Run migrations
+	if err := goose.Up(pg, "./Database/migrations"); err != nil {
+		log.Println("migrations failed")
+		panic(err)
+	} else {
+		log.Println("migrations successfull!")
+	}
 
-  config.App.DB = pg
-  config.App.CTX = context.Background()
-  config.App.QueryObj = db.New(pg)
+	log.Printf("config.App is nil? %v\n", config.App == nil)
 
+	jwt_key := os.Getenv("JWT")
+	if jwt_key == "" {
+		log.Println("JWT secret found empty!")
+		panic(errors.New("jwt secret could not be fetched or is nil"))
+	}
+	config.App.JWT = []byte(jwt_key)
+	config.App.DB = pg
+	config.App.CTX = context.Background()
+	config.App.QueryObj = db.New(pg)
 
-  ws.Start_test_group()
+	ws.Start_test_group()
 
-  e := echo.New() 
-  controllers.RoutesSetup(e)
-  e.Logger.Fatal(e.Start(":8080"))
+	e := echo.New()
+	controllers.RoutesSetup(e)
+	e.Logger.Fatal(e.Start(":8080"))
 }

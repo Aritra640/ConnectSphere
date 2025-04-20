@@ -11,4 +11,5 @@ type Config struct {
 	DB       *sql.DB
 	QueryObj *db.Queries
 	CTX      context.Context
+  JWT      []byte
 }
