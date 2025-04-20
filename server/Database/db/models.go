@@ -62,6 +62,14 @@ type PersonalMessage struct {
 	SendAt     sql.NullTime
 }
 
+type RefreshToken struct {
+	ID        uuid.UUID
+	UserID    sql.NullInt32
+	Token     string
+	ExpiresAt sql.NullTime
+	CreatedAt sql.NullTime
+}
+
 type User struct {
 	ID             int32
 	Username       string
