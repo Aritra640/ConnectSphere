@@ -11,5 +11,4 @@ func RoutesSetup(e *echo.Echo) {
     return c.JSON(200 , "hi hello there")
   })
 
-  e.POST("/signup"  )
 }

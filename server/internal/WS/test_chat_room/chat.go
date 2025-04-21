@@ -19,7 +19,6 @@ var upgrader = websocket.Upgrader{
 
 //for test a message is a normal string and does not need a
 //owner
-
 func TestChatRoom(c echo.Context) error {
 
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), c.Response().Header())

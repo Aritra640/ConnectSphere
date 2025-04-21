@@ -11,6 +11,8 @@ import (
 	controllers "github.com/Aritra640/ConnectSphere/server/internal/Controllers"
 	ws "github.com/Aritra640/ConnectSphere/server/internal/WS/test_chat_room"
 	"github.com/Aritra640/ConnectSphere/server/internal/config"
+	Internal_Validator "github.com/Aritra640/ConnectSphere/server/internal/validator"
+	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	_ "github.com/lib/pq"
@@ -61,6 +63,12 @@ func main() {
 	ws.Start_test_group()
 
 	e := echo.New()
+
+	//Register the custom validator
+	e.Validator = &Internal_Validator.CustomValidatorService{
+		Validator: validator.New(),
+	}
+
 	controllers.RoutesSetup(e)
 	e.Logger.Fatal(e.Start(":8080"))
 }
