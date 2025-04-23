@@ -9,7 +9,7 @@ END $$;
 -- +goose StatementEnd
 
 CREATE TABLE IF NOT EXISTS chat (
-  id UUID PRIMARY KEY,
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   content TEXT NOT NULL,
   type    chat_type NOT NULL DEFAULT 'text',
   created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP

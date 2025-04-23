@@ -1,3 +1,5 @@
-package config 
+package config
 
-var App =  &Config{}
+
+var App = &Config{}
+

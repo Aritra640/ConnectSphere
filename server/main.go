@@ -6,10 +6,12 @@ import (
 	"errors"
 	"log"
 	"os"
+	"time"
 
 	"github.com/Aritra640/ConnectSphere/server/Database/db"
 	controllers "github.com/Aritra640/ConnectSphere/server/internal/Controllers"
 	ws "github.com/Aritra640/ConnectSphere/server/internal/WS/test_chat_room"
+	"github.com/Aritra640/ConnectSphere/server/internal/auth"
 	"github.com/Aritra640/ConnectSphere/server/internal/config"
 	Internal_Validator "github.com/Aritra640/ConnectSphere/server/internal/validator"
 	"github.com/go-playground/validator/v10"
@@ -61,6 +63,11 @@ func main() {
 	config.App.QueryObj = db.New(pg)
 
 	ws.Start_test_group()
+
+  //Initialize auth service 
+  auth.AuthSetup.Queries = config.App.QueryObj
+  auth.AuthSetup.Rts = &auth.RefreshTokenService{Queries: config.App.QueryObj}
+  auth.AuthSetup.Expiry = time.Hour * 24
 
 	e := echo.New()
 

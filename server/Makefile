@@ -1,0 +1,9 @@
+.PHONY: unit_test
+
+unit_test:
+	go test ./internal/auth/...
+	go test ./internal/utils/...
+
+unit_test_with_coverage:
+	go test -coverprofile=coverage.out ./...
+	go tool cover -html=coverage.out

@@ -1,3 +1,4 @@
+//TODO: add mail server otp based email verification 
 package auth
 
 import (
@@ -74,7 +75,7 @@ func (as *AuthService) SigninHandler(c echo.Context) error {
     return c.JSON(http.StatusInternalServerError , "something went wrong")
   }
 
-  //Genrate refresh token 
+  //Generate refresh token 
   refreshToken,err := as.Rts.CreateRefreshToken(c.Request().Context() , int(user.ID) , 7*24*time.Hour) 
   if err != nil {
     log.Println("Refresh token creation: " , err )
