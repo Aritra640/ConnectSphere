@@ -19,8 +19,8 @@ type SignupRequest struct {
 }
 
 type SigninRequest struct {
-	Email          string `json:"email" validate:"required,email"`
-	HashedPassword string `json:"hashed_password" validate:"required"`
+	Email    string `json:"email" validate:"required,email"`
+	Password string `json:"password" validate:"required"`
 }
 
 // NewAuthService creates a new instance of AuthService with queries , refresh-token-service(rts) and expiry
