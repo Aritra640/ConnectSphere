@@ -27,4 +27,6 @@ func RoutesSetup(e *echo.Echo) {
 
   apiv1.POST("/signup" , auth.AuthSetup.SignupHandler)
   apiv1.POST("/signin" , auth.AuthSetup.SigninHandler)
+
+  apiv1.GET("/protected" , ProtectedHandler , auth.AuthSetup.AuthMiddleware)
 }
