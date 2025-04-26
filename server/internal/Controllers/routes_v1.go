@@ -2,10 +2,11 @@ package controllers
 
 import (
 	"github.com/Aritra640/ConnectSphere/server/internal/auth"
+	"github.com/Aritra640/ConnectSphere/server/internal/config"
 	"github.com/labstack/echo/v4"
 )
 
-func RoutesSetup(e *echo.Echo) {
+func RoutesSetupV1(e *echo.Echo) {
 
   apiv1 := e.Group("/api/v1")
 
@@ -29,4 +30,6 @@ func RoutesSetup(e *echo.Echo) {
   apiv1.POST("/signin" , auth.AuthSetup.SigninHandler)
 
   apiv1.GET("/protected" , ProtectedHandler , auth.AuthSetup.AuthMiddleware)
+
+  apiv1.GET("/get_personal_chat_history" , config.App.PCS.GetPersonalChatHistoryHandler)
 }

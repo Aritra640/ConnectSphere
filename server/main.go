@@ -17,6 +17,7 @@ import (
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	_ "github.com/lib/pq"
 	"github.com/pressly/goose/v3"
 )
@@ -76,6 +77,10 @@ func main() {
 		Validator: validator.New(),
 	}
 
-	controllers.RoutesSetup(e)
+
+  //Use cors 
+  e.Use(middleware.CORS())
+
+	controllers.RoutesSetupV1(e)
 	e.Logger.Fatal(e.Start(":8080"))
 }

@@ -75,6 +75,9 @@ func (as *AuthService) SigninHandler(c echo.Context) error {
     return c.JSON(http.StatusInternalServerError , "something went wrong")
   }
 
+  //Delete old refresh toeken if any 
+  as.Rts.DeleteRefreshTokenByUserID(c.Request().Context() , int(user.ID))
+
   //Generate refresh token 
   refreshToken,err := as.Rts.CreateRefreshToken(c.Request().Context() , int(user.ID) , 7*24*time.Hour) 
   if err != nil {
