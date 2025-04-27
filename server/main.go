@@ -10,7 +10,8 @@ import (
 
 	"github.com/Aritra640/ConnectSphere/server/Database/db"
 	controllers "github.com/Aritra640/ConnectSphere/server/internal/Controllers"
-	ws "github.com/Aritra640/ConnectSphere/server/internal/WS/test_chat_room"
+	pcs "github.com/Aritra640/ConnectSphere/server/internal/WS/Personal_Messages"
+	tcr "github.com/Aritra640/ConnectSphere/server/internal/WS/test_chat_room"
 	"github.com/Aritra640/ConnectSphere/server/internal/auth"
 	"github.com/Aritra640/ConnectSphere/server/internal/config"
 	Internal_Validator "github.com/Aritra640/ConnectSphere/server/internal/validator"
@@ -61,9 +62,13 @@ func main() {
 	config.App.JWT = []byte(jwt_key)
 	config.App.DB = pg
 	config.App.CTX = context.Background()
-	config.App.QueryObj = db.New(pg)
+	config.App.QueryObj = db.New(config.App.DB)
 
-	ws.Start_test_group()
+  //personal chat service setup 
+  pcs.PersonalMessageSetup.Queries = config.App.QueryObj
+  pcs.PersonalMessageSetup.WS_store = pcs.NewPersonalChatStore()
+
+  tcr.Start_test_group()
 
   //Initialize auth service 
   auth.AuthSetup.Queries = config.App.QueryObj

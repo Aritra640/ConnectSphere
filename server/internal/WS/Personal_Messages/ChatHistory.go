@@ -54,7 +54,7 @@ func (pcs *PersonalChatService) GetPersonalChatHistoryHandler(c echo.Context) er
 				Type:    message.Type.(string),
 				IsSeen:  message.IsSeen,
 				UserID:  int(message.UserID.Int32),
-				ChatID:  int(message.ID.ID()),
+				ChatID:  message.ID.String(),
 			})
 		}
 
@@ -66,7 +66,7 @@ func (pcs *PersonalChatService) GetPersonalChatHistoryHandler(c echo.Context) er
 }
 
 type ChatHistoryReturn struct {
-	ChatID  int    `json:"chat_id"`
+	ChatID  string    `json:"chat_id"`
 	Content string `json:"content"`
 	Type    string `json:"type"`
 	UserID  int    `json:"user_id"`

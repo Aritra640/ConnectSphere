@@ -12,7 +12,7 @@ import (
 
 type EditPersonalMessageParam struct {
 	ChatID  string `json:"chat_id"`
-	Content string    `json:"content"`
+	Content string `json:"content"`
 }
 
 func (pcs *PersonalChatService) EditPersonalMessageHandler(c echo.Context) error {
@@ -25,17 +25,18 @@ func (pcs *PersonalChatService) EditPersonalMessageHandler(c echo.Context) error
 			errCh <- err
 		}
 		reqCh <- req
-	  }()
-    
-  var chatIdparam uuid.UUID
+	}()
+
+	var chatIdparam uuid.UUID
 
 	var req EditPersonalMessageParam
 	select {
 	case req = <-reqCh:
-    uuid,err := utils.ParseUUID(req.ChatID); if err != nil {
-      log.Println("Error: cannot be converted to uuid in edit param")
-    }
-    chatIdparam = uuid
+		uuid, err := utils.ParseUUID(req.ChatID)
+		if err != nil {
+			log.Println("Error: cannot be converted to uuid in edit param")
+		}
+		chatIdparam = uuid
 
 	case err := <-errCh:
 		log.Println("Error: cannot get req EditPersonalMessageParam in EditPersonalMessageHandler: ", err)

@@ -19,7 +19,7 @@ type CreatePersonalMassageInput struct {
 }
 
 //CreatePersonalMassage checks if sender and receiver are friends and if not make them friends , create a new chat and create a personal massage 
-func (pcs *PersonalChatService) CreatePersonalMassage(ctx context.Context , req CreatePersonalMassageInput) (int , error) {
+func (pcs *PersonalChatService) CreatePersonalMassage(ctx context.Context , req CreatePersonalMassageInput) (uuid.UUID , error) {
 
   //Check if sender and receiver are friends and if not make them friends 
   areFriends,err := pcs.Queries.AreFriends(ctx , db.AreFriendsParams{
@@ -28,7 +28,7 @@ func (pcs *PersonalChatService) CreatePersonalMassage(ctx context.Context , req 
   })
   if err != nil {
     log.Println("Error: Failed to check friendship: " , err)
-    return -1,err
+    return uuid.UUID{},err
   }
 
   if !areFriends {
@@ -39,7 +39,7 @@ func (pcs *PersonalChatService) CreatePersonalMassage(ctx context.Context , req 
 
     if err != nil {
       log.Println("Error: cannot add friends both ways: " , err)
-      return -1,err
+      return uuid.UUID{},err
     }
   }
 
@@ -56,7 +56,7 @@ func (pcs *PersonalChatService) CreatePersonalMassage(ctx context.Context , req 
   }) 
   if err != nil {
     log.Println("Error: cannot create chat: " , err)
-    return -1,err
+    return uuid.UUID{},err
   }
 
   //Create a personal massage 
@@ -68,8 +68,8 @@ func (pcs *PersonalChatService) CreatePersonalMassage(ctx context.Context , req 
 
   if err != nil {
     log.Println("Error: could not create personal massage: " , err)
-    return -1,err 
+    return uuid.UUID{},err 
   }
 
-  return int(chatID.ID()), nil
+  return chatID, nil
 }
