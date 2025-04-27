@@ -16,6 +16,7 @@ import (
 	"github.com/Aritra640/ConnectSphere/server/internal/config"
 	Internal_Validator "github.com/Aritra640/ConnectSphere/server/internal/validator"
 	"github.com/go-playground/validator/v10"
+	"github.com/google/uuid"
 	"github.com/joho/godotenv"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -67,6 +68,7 @@ func main() {
   //personal chat service setup 
   pcs.PersonalMessageSetup.Queries = config.App.QueryObj
   pcs.PersonalMessageSetup.WS_store = pcs.NewPersonalChatStore()
+  pcs.PersonalMessageSetup.CUID = make(map[uuid.UUID]pcs.PersonalChatID_UIDmap)
 
   tcr.Start_test_group()
 

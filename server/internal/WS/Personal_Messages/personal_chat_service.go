@@ -11,6 +11,13 @@ import (
 type PersonalChatService struct {
 	Queries  *db.Queries
   WS_store *PersonalChatStore
+  CUID     map[uuid.UUID]PersonalChatID_UIDmap
+  Mu       sync.Mutex
+}
+
+type PersonalChatID_UIDmap struct {
+  User1 int 
+  User2 int
 }
 
 type Message struct {
@@ -33,16 +40,6 @@ func NewPersonalChatStore() *PersonalChatStore {
     Store: make(map[uuid.UUID][]*websocket.Conn),
     MessageCh: make(chan Message),
   }
-}
-
-//Delete id pair if exists
-func (store *PersonalChatStore) DeleteCons(id uuid.UUID) {
-  
-  store.Mu.Lock()
-  if _,ok := store.Store[id]; ok {
-    delete(store.Store , id)
-  }
-  store.Mu.Unlock()
 }
 
 

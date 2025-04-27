@@ -29,6 +29,8 @@ func (pcs *PersonalChatService) PersonalMessagesHandler(c echo.Context) error {
 	}
 	defer ws.Close()
 
+
+
 	for {
 		_, msg, err := ws.ReadMessage()
 		if err != nil {
