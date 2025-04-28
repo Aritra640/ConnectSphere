@@ -37,10 +37,16 @@ func (store *PersonalChatStore) Run(ctx context.Context, id uuid.UUID) {
 func (store *PersonalChatStore) DeleteConn(id uuid.UUID) {
 
 	store.Mu.Lock()
-	if _, ok := store.Store[id]; ok {
-		delete(store.Store, id)
-	}
+	delete(store.Store, id)
 	store.Mu.Unlock()
 }
 
-
+func (store *PersonalChatStore) SendMesssage(msgContent string , socket *websocket.Conn) {
+  
+  store.Mu.Lock()
+  store.MessageCh <- Message{
+    Owner: socket,
+    chat: msgContent,
+  } 
+  store.Mu.Unlock()
+}

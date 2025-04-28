@@ -22,6 +22,9 @@ var upgrader = websocket.Upgrader{
 
 func (pcs *PersonalChatService) PersonalMessagesHandler(c echo.Context) error {
 
+	pid := c.QueryParam("pid")
+	puid, _ := uuid.Parse(pid)
+
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), c.Response().Header())
 	if err != nil {
 		log.Println("Error: cannot upgrade to websocket: ", err)
@@ -29,20 +32,21 @@ func (pcs *PersonalChatService) PersonalMessagesHandler(c echo.Context) error {
 	}
 	defer ws.Close()
 
-
+  pcs.WS_store.AddClient(puid , ws)
 
 	for {
 		_, msg, err := ws.ReadMessage()
 		if err != nil {
 			//remove client
+      pcs.WS_store.DeleteConn(puid)
 			log.Println("Error: client disconnected in PersonalMessagesHandler: ", err)
-			break
+			return c.JSON(http.StatusConflict , "WS connection terminated")
 		}
 
 		res, err := utils.GetPersonalPersonal_JSON(msg)
 		if err != nil {
 			log.Println("Error: data invalid: ", err)
-			str, _ := StringReturn(res.SenderID, uuid.New() , "error", "Invalid Format")
+			str, _ := StringReturn(res.SenderID, uuid.New(), "error", "Invalid Format")
 			ws.WriteMessage(websocket.TextMessage, []byte(str))
 			continue
 		}
@@ -67,25 +71,26 @@ func (pcs *PersonalChatService) PersonalMessagesHandler(c echo.Context) error {
 
 		select {
 		case cid := <-cidCh:
-      sendStr,_ := StringReturn(res.SenderID, cid , "message" , res.Content)
-      //send the same message to both 
+			sendStr, _ := StringReturn(res.SenderID, cid, "message", res.Content)
+			//send the same message to both
+      pcs.WS_store.SendMesssage(sendStr , ws)
 
 		case err = <-errCh:
 			log.Println("Error: cannot create personal message: ", err)
-      errStr,_ := StringReturn(res.SenderID , uuid.New() , "error" , "Something went wrong")
+			errStr, _ := StringReturn(res.SenderID, uuid.New(), "error", "Something went wrong")
 			ws.WriteMessage(websocket.TextMessage, []byte(errStr))
 		}
 
 	}
 }
 
-func StringReturn(userID int,chatID uuid.UUID ,  typeMsg string, content string) (string, error) {
+func StringReturn(userID int, chatID uuid.UUID, typeMsg string, content string) (string, error) {
 
 	data := map[string]interface{}{
 		"user":    userID,
 		"type":    typeMsg,
 		"content": content,
-    "chatID" : chatID,
+		"chatID":  chatID,
 	}
 
 	jsonData, err := json.Marshal(data)
@@ -99,8 +104,8 @@ func StringReturn(userID int,chatID uuid.UUID ,  typeMsg string, content string)
 
 func StringReturnHandler(c echo.Context) error {
 
-  str,_ := StringReturn(123,uuid.New(),"test","this is an example return handler")
-  return c.JSON(http.StatusOK , map[string]string{
-    "message": str,
-  })
+	str, _ := StringReturn(123, uuid.New(), "test", "this is an example return handler")
+	return c.JSON(http.StatusOK, map[string]string{
+		"message": str,
+	})
 }
