@@ -13,7 +13,7 @@ type DeletePersonalMessageParam struct {
 	ChatId string `json:"chat_id"`
 }
 
-func (pcs *PersonalChatService) DeletePersonalMassage(c echo.Context) error {
+func (pcs *PersonalChatService) DeletePersonalMassageHandler(c echo.Context) error {
 
 	reqCh := make(chan DeletePersonalMessageParam)
 	errCh := make(chan error)

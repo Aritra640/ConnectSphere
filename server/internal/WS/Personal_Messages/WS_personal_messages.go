@@ -20,6 +20,7 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
+//PersonalMessagesHandler is the ws handler for personal messages
 func (pcs *PersonalChatService) PersonalMessagesHandler(c echo.Context) error {
 
 	pid := c.QueryParam("pid")
