@@ -10,6 +10,7 @@ import (
 
 	"github.com/Aritra640/ConnectSphere/server/Database/db"
 	controllers "github.com/Aritra640/ConnectSphere/server/internal/Controllers"
+	gcs "github.com/Aritra640/ConnectSphere/server/internal/WS/Group_Messages"
 	pcs "github.com/Aritra640/ConnectSphere/server/internal/WS/Personal_Messages"
 	tcr "github.com/Aritra640/ConnectSphere/server/internal/WS/test_chat_room"
 	"github.com/Aritra640/ConnectSphere/server/internal/auth"
@@ -76,6 +77,9 @@ func main() {
   auth.AuthSetup.Queries = config.App.QueryObj
   auth.AuthSetup.Rts = &auth.RefreshTokenService{Queries: config.App.QueryObj}
   auth.AuthSetup.Expiry = time.Hour * 24
+
+  config.App.PCS = pcs.PersonalMessageSetup
+  config.App.GCS = gcs.GroupChatMessageSetup
 
 	e := echo.New()
 
