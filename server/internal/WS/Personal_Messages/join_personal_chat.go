@@ -2,9 +2,7 @@ package ws
 
 import "github.com/google/uuid"
 
-func (pcs *PersonalChatService) CreateChat(uid1, uid2 int) uuid.UUID {
-
-	id := uuid.New()
+func (pcs *PersonalChatService) CreateChat(uid1, uid2 int , id uuid.UUID)  {
 
 	pcs.Mu.Lock()
 	pcs.CUID[id] = PersonalChatID_UIDmap{
@@ -12,8 +10,6 @@ func (pcs *PersonalChatService) CreateChat(uid1, uid2 int) uuid.UUID {
 		User2: uid2,
 	}
 	pcs.Mu.Unlock()
-
-	return id
 }
 
 func (pcs *PersonalChatService) FindPersonalMessageID(uid1, uid2 int) (uuid.UUID, bool) {

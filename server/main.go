@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"os"
+	"os/signal"
 	"time"
 
 	"github.com/Aritra640/ConnectSphere/server/Database/db"
@@ -80,6 +81,11 @@ func main() {
 
   config.App.PCS = pcs.PersonalMessageSetup
   config.App.GCS = gcs.GroupChatMessageSetup
+
+  ctx,stop := context.WithCancel(context.Background())
+  defer stop()
+
+  config.App.PCS.WS_store.RunWS(ctx)
 
 	e := echo.New()
 

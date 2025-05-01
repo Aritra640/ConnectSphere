@@ -5,11 +5,19 @@ import (
 	"log"
 )
 
+type TypeMessage string
+
+const (
+	Chat TypeMessage = "Chat"
+	Join TypeMessage = "Join"
+)
+
 type ResponsePersonal struct {
-	SenderID   int        `json:"sender_id"`
-	ReceiverID int        `json:"receiver_id"`
-	Content    string     `json:"content"`
-	Type       TypeStruct `json:"type"`
+	SenderID   int         `json:"sender_id"`
+	ReceiverID int         `json:"receiver_id"`
+	Content    string      `json:"content"`
+	TypeMsg    TypeMessage `json:"type_message"`
+	Type       TypeStruct  `json:"type"`
 }
 
 type TypeStruct string

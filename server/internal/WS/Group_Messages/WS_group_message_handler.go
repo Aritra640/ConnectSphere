@@ -4,6 +4,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Aritra640/ConnectSphere/server/internal/utils"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 )
@@ -32,6 +33,11 @@ func (gcs *GroupChatService) GroupMessageHandler(c echo.Context) error {
       return c.JSON(http.StatusConflict , "Websocket terminated")
     }
 
-    
+    res,err := utils.GetResponseGroup_JSON(msg); if err != nil {
+      log.Println("Error: cannot unmarshall json")
+      return c.JSON(http.StatusBadRequest , "Invalid Request")
+    }
+
+
   }
 }

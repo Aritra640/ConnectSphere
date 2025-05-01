@@ -20,11 +20,11 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-//PersonalMessagesHandler is the ws handler for personal messages
+// PersonalMessagesHandler is the ws handler for personal messages
 func (pcs *PersonalChatService) PersonalMessagesHandler(c echo.Context) error {
 
-	pid := c.QueryParam("pid")
-	puid, _ := uuid.Parse(pid)
+  pid := c.QueryParam("pid")
+  puid,_ := uuid.Parse(pid)
 
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), c.Response().Header())
 	if err != nil {
@@ -33,15 +33,15 @@ func (pcs *PersonalChatService) PersonalMessagesHandler(c echo.Context) error {
 	}
 	defer ws.Close()
 
-  pcs.WS_store.AddClient(puid , ws)
+	pcs.WS_store.AddClient(puid, ws)
 
 	for {
 		_, msg, err := ws.ReadMessage()
 		if err != nil {
 			//remove client
-      pcs.WS_store.DeleteConn(puid)
+			pcs.WS_store.DeleteConn(puid)
 			log.Println("Error: client disconnected in PersonalMessagesHandler: ", err)
-			return c.JSON(http.StatusConflict , "WS connection terminated")
+			return c.JSON(http.StatusConflict, "WS connection terminated")
 		}
 
 		res, err := utils.GetPersonalPersonal_JSON(msg)
@@ -51,6 +51,10 @@ func (pcs *PersonalChatService) PersonalMessagesHandler(c echo.Context) error {
 			ws.WriteMessage(websocket.TextMessage, []byte(str))
 			continue
 		}
+
+    if res.TypeMsg == utils.TypeMessage(Join) {
+      
+    }
 
 		//Create Personal Message
 		cidCh := make(chan uuid.UUID)
@@ -74,7 +78,7 @@ func (pcs *PersonalChatService) PersonalMessagesHandler(c echo.Context) error {
 		case cid := <-cidCh:
 			sendStr, _ := StringReturn(res.SenderID, cid, "message", res.Content)
 			//send the same message to both
-      pcs.WS_store.SendMesssage(sendStr , ws)
+			pcs.WS_store.SendMesssage(sendStr , ws , puid , Chat)
 
 		case err = <-errCh:
 			log.Println("Error: cannot create personal message: ", err)

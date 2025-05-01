@@ -15,20 +15,23 @@ func (store *PersonalChatStore) AddClient(id uuid.UUID, socket *websocket.Conn) 
 	store.Mu.Unlock()
 }
 
-func (store *PersonalChatStore) Run(ctx context.Context, id uuid.UUID) {
+func (store *PersonalChatStore) Run(ctx context.Context) {
 	for {
 		select {
 
 		case msg := <-store.MessageCh:
-			store.Mu.Lock()
+      
+      if msg.TypeMsg == Chat {
 
-			for _, socket := range store.Store[id] {
-				socket.WriteMessage(websocket.TextMessage, []byte(msg.chat))
-			}
+          store.Mu.Lock()
+          for _,socket := range store.Store[msg.Pid] {
+            socket.WriteMessage(websocket.TextMessage ,  []byte(msg.chat))
+          }
+      }
 
-			store.Mu.Unlock()
-		case <-ctx.Done():
-			log.Println("Run looped stopped for: ", id)
+
+	  case <-ctx.Done():
+			log.Println("Run looped stopped ")
 			return
 		}
 	}
@@ -41,12 +44,20 @@ func (store *PersonalChatStore) DeleteConn(id uuid.UUID) {
 	store.Mu.Unlock()
 }
 
-func (store *PersonalChatStore) SendMesssage(msgContent string , socket *websocket.Conn) {
+func (store *PersonalChatStore) SendMesssage(msgContent string , socket *websocket.Conn , pid uuid.UUID , t TypeMessage) {
   
   store.Mu.Lock()
   store.MessageCh <- Message{
     Owner: socket,
     chat: msgContent,
+    Pid: pid,
+    TypeMsg: t,
   } 
   store.Mu.Unlock()
+}
+
+
+func (store *PersonalChatStore) RunWS(ctx context.Context) {
+
+  go store.Run(ctx)
 }

@@ -35,7 +35,7 @@ func RoutesSetupV1(e *echo.Echo) {
   //Personal Messages Routes 
 	apiv1.GET("/auth/get_personal_chat_history", config.App.PCS.GetPersonalChatHistoryHandler)
 
-	apiv1.GET("/auth/create_NewPmsg", config.App.PCS.CreateNewPersonalMessageHandler, auth.AuthSetup.AuthMiddleware)
+	apiv1.GET("/auth/create_NewPmsg", config.App.PCS.GetPersonalMessageHandler, auth.AuthSetup.AuthMiddleware)
 	apiv1.Any("/ws/join_PMsg", config.App.PCS.PersonalMessagesHandler)
 
 	apiv1.GET("/StringPersonalMessageEx", wsp.StringReturnHandler)
