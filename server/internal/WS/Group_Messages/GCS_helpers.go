@@ -1,9 +1,20 @@
 package ws
 
 import (
+	"context"
+
+	"github.com/Aritra640/ConnectSphere/server/Database/db"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
+
+func NewGCS() *GroupChatService {
+
+  return &GroupChatService{
+    Queries: &db.Queries{},
+    Groups: make(map[uuid.UUID]*Group),
+  }
+}
 
 func (gcs *GroupChatService) AddUserInGroup(gid uuid.UUID, socket *websocket.Conn) error {
 
@@ -32,4 +43,15 @@ func (gcs *GroupChatService) DeleteGroup(gid uuid.UUID) error {
   return nil
 }
 
+
+
+//------------------------WS------------------------------
+
+//Run all groups concurrently 
+func (gcs *GroupChatService) RunAll(ctx context.Context) {
+
+  for _,grp := range gcs.Groups {
+    go grp.Run(ctx)
+  }
+}
 

@@ -19,7 +19,7 @@ type Group struct {
 	GroupID   uuid.UUID
 	Clients   map[*websocket.Conn]bool
 	Mu        sync.Mutex
-	MessageCh chan string
+	MessageCh chan GroupMessage
 }
 
 type GroupMessage struct {

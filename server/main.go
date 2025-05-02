@@ -6,7 +6,6 @@ import (
 	"errors"
 	"log"
 	"os"
-	"os/signal"
 	"time"
 
 	"github.com/Aritra640/ConnectSphere/server/Database/db"
@@ -67,25 +66,26 @@ func main() {
 	config.App.CTX = context.Background()
 	config.App.QueryObj = db.New(config.App.DB)
 
-  //personal chat service setup 
-  pcs.PersonalMessageSetup.Queries = config.App.QueryObj
-  pcs.PersonalMessageSetup.WS_store = pcs.NewPersonalChatStore()
-  pcs.PersonalMessageSetup.CUID = make(map[uuid.UUID]pcs.PersonalChatID_UIDmap)
+	//personal chat service setup
+	pcs.PersonalMessageSetup.Queries = config.App.QueryObj
+	pcs.PersonalMessageSetup.WS_store = pcs.NewPersonalChatStore()
+	pcs.PersonalMessageSetup.CUID = make(map[uuid.UUID]pcs.PersonalChatID_UIDmap)
 
-  tcr.Start_test_group()
+	tcr.Start_test_group()
 
-  //Initialize auth service 
-  auth.AuthSetup.Queries = config.App.QueryObj
-  auth.AuthSetup.Rts = &auth.RefreshTokenService{Queries: config.App.QueryObj}
-  auth.AuthSetup.Expiry = time.Hour * 24
+	//Initialize auth service
+	auth.AuthSetup.Queries = config.App.QueryObj
+	auth.AuthSetup.Rts = &auth.RefreshTokenService{Queries: config.App.QueryObj}
+	auth.AuthSetup.Expiry = time.Hour * 24
 
-  config.App.PCS = pcs.PersonalMessageSetup
-  config.App.GCS = gcs.GroupChatMessageSetup
+	config.App.PCS = pcs.PersonalMessageSetup
+	config.App.GCS = gcs.GroupChatMessageSetup
 
-  ctx,stop := context.WithCancel(context.Background())
-  defer stop()
+	ctx, stop := context.WithCancel(context.Background())
+	defer stop()
 
-  config.App.PCS.WS_store.RunWS(ctx)
+	config.App.PCS.WS_store.RunWS(ctx)
+	config.App.GCS.RunAll(ctx)
 
 	e := echo.New()
 
@@ -94,9 +94,8 @@ func main() {
 		Validator: validator.New(),
 	}
 
-
-  //Use cors 
-  e.Use(middleware.CORS())
+	//Use cors
+	e.Use(middleware.CORS())
 
 	controllers.RoutesSetupV1(e)
 	e.Logger.Fatal(e.Start(":8080"))
