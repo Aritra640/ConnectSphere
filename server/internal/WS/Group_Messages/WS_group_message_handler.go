@@ -35,7 +35,7 @@ func (gcs *GroupChatService) GroupMessageHandler(c echo.Context) error {
   for {
     _,msg,err := ws.ReadMessage()
     if err != nil {
-      //TODO: remove the socket 
+      gcs.DeleteClientFromAllGroups(c.Request().Context() , ws)
       log.Println("Error: socket disconnected in FroupMessageHandler: " , err)
       return c.JSON(http.StatusConflict , "Websocket terminated")
     }

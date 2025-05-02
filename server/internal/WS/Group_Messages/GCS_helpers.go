@@ -44,6 +44,17 @@ func (gcs *GroupChatService) DeleteGroup(gid uuid.UUID) error {
 }
 
 
+//Remove the socket connection from all the groups 
+func (gcs *GroupChatService) DeleteClientFromAllGroups(ctx context.Context , socket *websocket.Conn) {
+
+  gcs.Mu.Lock()
+  for _,grp := range gcs.Groups {
+    grp.DeleteClient(socket)
+  }
+  gcs.Mu.Unlock()
+}
+
+
 
 //------------------------WS------------------------------
 
