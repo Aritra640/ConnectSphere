@@ -5,22 +5,27 @@ import (
 	"log"
 )
 
-type ResponseGroup struct {
-	GroupID string     `json:"group_id"`
-	UserID  int        `json:"user_id"`
-	Content string     `json:"content"`
-	Type    TypeStruct `json:"type"`
+type RequestGroup struct {
+	UserID      int         `json:"user_id"`
+	RequestType TypeMessage `json:"type_request"`
+	Payload     Payload     `json:"payload"`
 }
 
-func GetResponseGroup_JSON(str []byte) (ResponseGroup , error) {
+type Payload struct {
+	Content string     `json:"content"`
+	TypeMsg TypeStruct `json:"type"`
+}
 
-  var res ResponseGroup 
-  err := json.Unmarshal(str , &res); if err != nil {
+func GetRequestGroup_JSON(str []byte) (RequestGroup, error) {
 
-    log.Println("Error: cannot unmarshall in group message: " ,err)
-    log.Println("String: " , string(str))
-    return ResponseGroup{} , err
-  }
+	var res RequestGroup
+	err := json.Unmarshal(str, &res)
+	if err != nil {
 
-  return res, nil
+		log.Println("Error: cannot unmarshall in group message: ", err)
+		log.Println("String: ", string(str))
+		return RequestGroup{}, err
+	}
+
+	return res, nil
 }
