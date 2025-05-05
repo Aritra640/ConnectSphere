@@ -13,8 +13,7 @@ type Config struct {
 	DB       *sql.DB
 	QueryObj *db.Queries
 	CTX      context.Context
-  JWT      []byte
-  PCS      *pcs.PersonalChatService
-  GCS      *gcs.GroupChatService
+	JWT      []byte
+	PCS      *pcs.PersonalChatService
+	GCS      *gcs.GroupChatService
 }
-

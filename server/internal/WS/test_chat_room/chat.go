@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"sync"
 
+	"github.com/Aritra640/ConnectSphere/server/internal/auth"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 )
@@ -17,9 +18,19 @@ var upgrader = websocket.Upgrader{
 	},
 }
 
-//for test a message is a normal string and does not need a
-//owner
+// for test a message is a normal string and does not need a
+// owner
 func TestChatRoom(c echo.Context) error {
+
+	token := c.QueryParam("access_token")
+	uid, err := auth.VerifyToken(token)
+	if err != nil {
+
+		log.Println("WS could not verify access token")
+	} else {
+
+		log.Println("WS authenticated")
+	}
 
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), c.Response().Header())
 	if err != nil {
@@ -28,7 +39,9 @@ func TestChatRoom(c echo.Context) error {
 	}
 	defer ws.Close()
 
-  mygroup.clients[ws] = true
+	mygroup.clients[ws] = true
+	hello := "Hi User with id: " + string(uid)
+	ws.WriteMessage(websocket.TextMessage, []byte(hello))
 
 	for {
 
@@ -60,7 +73,7 @@ func newGroup() *Group {
 }
 
 func (g *Group) run() {
-  for msg := range mygroup.MessageCh {
+	for msg := range mygroup.MessageCh {
 
 		g.RoomMu.Lock()
 		for client := range g.clients {

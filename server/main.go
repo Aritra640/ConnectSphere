@@ -78,6 +78,10 @@ func main() {
 	auth.AuthSetup.Rts = &auth.RefreshTokenService{Queries: config.App.QueryObj}
 	auth.AuthSetup.Expiry = time.Hour * 24
 
+
+  //Group Service Setup 
+  gcs.GroupChatMessageSetup.JWT = config.App.JWT
+
 	config.App.PCS = pcs.PersonalMessageSetup
 	config.App.GCS = gcs.GroupChatMessageSetup
 
@@ -88,6 +92,9 @@ func main() {
 	config.App.GCS.RunAll(ctx)
 
 	e := echo.New()
+
+	//Test ws connection with authentication
+	e.Any("/test_ws", tcr.TestChatRoom)
 
 	//Register the custom validator
 	e.Validator = &Internal_Validator.CustomValidatorService{

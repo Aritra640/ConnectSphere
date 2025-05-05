@@ -13,6 +13,7 @@ type GroupChatService struct {
 	Queries *db.Queries
 	Groups  map[uuid.UUID]*Group
 	Mu      sync.Mutex
+  JWT     []byte
 }
 
 type Group struct {
