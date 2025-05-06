@@ -56,6 +56,13 @@ func (gcs *GroupChatService) WSGroupMessageHandler(c echo.Context) error {
 		log.Println("Request cancelled (WS group) ...")
 	}
 
+  gid := c.QueryParam("gid")
+  guid,err := uuid.Parse(gid); if err != nil {
+    log.Println("Group id invalid in WS group messsage handler: " , err)
+
+    return c.JSON(http.StatusBadRequest, "Invalid request")
+  }
+
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), c.Response().Header())
 	if err != nil {
 		log.Println("WS connection failed in WS group message handler: ", err)
@@ -76,17 +83,53 @@ func (gcs *GroupChatService) WSGroupMessageHandler(c echo.Context) error {
 
     req,err := utils.GetRequestGroup_JSON(msg)
     if err != nil {
-      str,_ := GroupMessageString(uid , uuid.New() , true , "Message type invalid warning")
+      str,_ := GroupMessageString(uid , guid , true , "Message type invalid warning" , utils.Text)
       log.Println("Error: request message not of valid type: " , err)
       ws.WriteMessage(websocket.TextMessage , []byte(str))
     }
 
     if req.RequestType == utils.Join {
       //Create a join request in the queue if group is restricted else add user to group 
+      errChan := make(chan error)
+
+      go func() {
+
+        err := gcs.AddMemberToGroup(c.Request().Context() , AddMemberParams{
+          UserID: int32(uid),
+          GroupID: guid,
+        })
+
+        errChan <- err
+      }()
+
+      err := <-errChan; if err != nil {
+        log.Println("Error: join request failed in ws group handler: " , err)
+        str,_ := GroupMessageString(uid , guid , true , "Join Request failed" , utils.Text)
+        ws.WriteMessage(websocket.TextMessage , []byte(str))
+      }
 
     }else {
       //create a group message (through database) and write back (ws)
+      errChan := make(chan error)
 
+      go func() {
+
+        err := gcs.CreateGroupMessage(c.Request().Context() , guid , req.Payload.Content , uid , string(req.Payload.TypeMsg))
+        errChan <- err
+      }()
+      
+      err := <-errChan
+      if err != nil {
+
+        log.Println("Error: message creatiob failed in WS group message: " ,err)
+        str,_ := GroupMessageString(uid , guid , true , "Message failed!" , utils.Text)
+        ws.WriteMessage(websocket.TextMessage , []byte(str))
+      }else {
+
+        str,_ := GroupMessageString(uid , guid , false , req.Payload.Content , utils.Text)
+        //send str to group socket 
+
+      }
     }
     
   }
@@ -97,7 +140,7 @@ func (gcs *GroupChatService) WSGroupMessageHandler(c echo.Context) error {
 }
 
 
-func GroupMessageString(userId int , groupID uuid.UUID , isError bool , content string) (string , error) {
+func GroupMessageString(userId int , groupID uuid.UUID , isError bool , content string , type_content utils.TypeStruct) (string , error) {
 
   data := map[string]interface{}{
     "user_id": userId,
@@ -119,7 +162,7 @@ func GroupMessageString(userId int , groupID uuid.UUID , isError bool , content 
 
 func GroupMessageResponseStringHandler(c echo.Context) error {
 
-  str,err := GroupMessageString(123 , uuid.New() , false , "This is an example of gropup message response")
+  str,err := GroupMessageString(123 , uuid.New() , false , "This is an example of gropup message response" , utils.Text)
 
   if err != nil {
     log.Println("Error: GroupMessageResponseStringHandler failed! :" , err)
