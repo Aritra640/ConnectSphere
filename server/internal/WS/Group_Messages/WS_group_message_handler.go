@@ -2,12 +2,15 @@
 package ws
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
 
+	"github.com/Aritra640/ConnectSphere/server/internal/utils"
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 )
@@ -63,9 +66,70 @@ func (gcs *GroupChatService) WSGroupMessageHandler(c echo.Context) error {
 
   for{
 
+    _,msg,err := ws.ReadMessage()
+    if err != nil {
+
+      //delete this socket 
+      log.Println("WS client disconected in WS_group_message_handler: " , err)
+      break
+    }
+
+    req,err := utils.GetRequestGroup_JSON(msg)
+    if err != nil {
+      str,_ := GroupMessageString(uid , uuid.New() , true , "Message type invalid warning")
+      log.Println("Error: request message not of valid type: " , err)
+      ws.WriteMessage(websocket.TextMessage , []byte(str))
+    }
+
+    if req.RequestType == utils.Join {
+      //Create a join request in the queue if group is restricted else add user to group 
+
+    }else {
+      //create a group message (through database) and write back (ws)
+
+    }
+    
   }
 
+  log.Println("WS group handler has shutdown for uid: " , uid)
+  return c.JSON(http.StatusOK , "ws connection ended")
+
 }
+
+
+func GroupMessageString(userId int , groupID uuid.UUID , isError bool , content string) (string , error) {
+
+  data := map[string]interface{}{
+    "user_id": userId,
+    "group_id": groupID,
+    "is_error": isError,
+    "content": content,
+  }
+
+  JSONdata,err := json.Marshal(data)
+  if err != nil {
+
+    log.Println("Error: cannot marsha data in GroupMessageString: " , err)
+    return "", err
+  }
+
+  return string(JSONdata) , nil
+}
+
+
+func GroupMessageResponseStringHandler(c echo.Context) error {
+
+  str,err := GroupMessageString(123 , uuid.New() , false , "This is an example of gropup message response")
+
+  if err != nil {
+    log.Println("Error: GroupMessageResponseStringHandler failed! :" , err)
+    return c.JSON(http.StatusInternalServerError , "Error in getting string res")
+  }
+
+  return c.JSON(http.StatusOK , str)
+}
+
+
 
 type myCustomClaims struct {
 	UserID int `json:"user_id"`
