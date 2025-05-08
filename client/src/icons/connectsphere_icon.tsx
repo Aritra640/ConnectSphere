@@ -1,0 +1,25 @@
+export function ConnectSphereIcon() {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      width="48"
+      height="48"
+    >
+      <defs>
+        <linearGradient id="bubbleGradient" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stopColor="#4f46e5" />
+          <stop offset="100%" stopColor="#3b82f6" />
+        </linearGradient>
+      </defs>
+      <path
+        fill="url(#bubbleGradient)"
+        d="M4 5a3 3 0 0 1 3-3h10a3 3 0 0 1 3 3v9a3 3 0 0 1-3 3H9l-4 3v-3H7a3 3 0 0 1-3-3V5z"
+      />
+      <circle cx="9" cy="10" r="1.25" fill="#fff" />
+      <circle cx="12" cy="10" r="1.25" fill="#fff" />
+      <circle cx="15" cy="10" r="1.25" fill="#fff" />
+    </svg>
+  );
+}
+
