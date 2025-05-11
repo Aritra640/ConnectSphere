@@ -24,9 +24,6 @@ type Group struct {
 }
 
 type GroupMessage struct {
-	UserID  int              `json:"user_id"`
-	ChatID  uuid.UUID        `json:"chat_id"`
 	Content string           `json:"content"`
-	TypeMsg utils.TypeStruct `json:"type_msg"`
 	Owner   *websocket.Conn  `json:"owner"`
 }

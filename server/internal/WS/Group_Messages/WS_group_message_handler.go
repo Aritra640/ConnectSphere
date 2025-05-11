@@ -31,6 +31,8 @@ func (gcs *GroupChatService) WSGroupMessageHandler(c echo.Context) error {
 	authToken := c.QueryParam("access_token")
 	uidChan := make(chan int)
 	errChan := make(chan error)
+	defer close(uidChan)
+	defer close(errChan)
 
 	go func() {
 
@@ -56,12 +58,13 @@ func (gcs *GroupChatService) WSGroupMessageHandler(c echo.Context) error {
 		log.Println("Request cancelled (WS group) ...")
 	}
 
-  gid := c.QueryParam("gid")
-  guid,err := uuid.Parse(gid); if err != nil {
-    log.Println("Group id invalid in WS group messsage handler: " , err)
+	gid := c.QueryParam("gid")
+	guid, err := uuid.Parse(gid)
+	if err != nil {
+		log.Println("Group id invalid in WS group messsage handler: ", err)
 
-    return c.JSON(http.StatusBadRequest, "Invalid request")
-  }
+		return c.JSON(http.StatusBadRequest, "Invalid request")
+	}
 
 	ws, err := upgrader.Upgrade(c.Response(), c.Request(), c.Response().Header())
 	if err != nil {
@@ -70,109 +73,140 @@ func (gcs *GroupChatService) WSGroupMessageHandler(c echo.Context) error {
 	}
 	defer ws.Close()
 
+	for {
 
-  for{
+		_, msg, err := ws.ReadMessage()
+		if err != nil {
 
-    _,msg,err := ws.ReadMessage()
-    if err != nil {
+			//Delete this socket
+			gcs.DeleteClientFromAllGroups(c.Request().Context(), ws)
+			log.Println("WS client disconected in WS_group_message_handler: ", err)
+			break
+		}
 
-      //delete this socket 
-      log.Println("WS client disconected in WS_group_message_handler: " , err)
-      break
-    }
+		req, err := utils.GetRequestGroup_JSON(msg)
+		if err != nil {
+			str, _ := GroupMessageString(uid, guid, true, "Message type invalid warning", utils.Text)
+			log.Println("Error: request message not of valid type: ", err)
+			ws.WriteMessage(websocket.TextMessage, []byte(str))
+		}
 
-    req,err := utils.GetRequestGroup_JSON(msg)
-    if err != nil {
-      str,_ := GroupMessageString(uid , guid , true , "Message type invalid warning" , utils.Text)
-      log.Println("Error: request message not of valid type: " , err)
-      ws.WriteMessage(websocket.TextMessage , []byte(str))
-    }
+		if req.RequestType == utils.Join {
+			//Create a join request in the queue if group is restricted else add user to group
+			errChan := make(chan error)
 
-    if req.RequestType == utils.Join {
-      //Create a join request in the queue if group is restricted else add user to group 
-      errChan := make(chan error)
+			go func() {
 
-      go func() {
+				err := gcs.AddMemberToGroup(c.Request().Context(), AddMemberParams{
+					UserID:  int32(uid),
+					GroupID: guid,
+				})
 
-        err := gcs.AddMemberToGroup(c.Request().Context() , AddMemberParams{
-          UserID: int32(uid),
-          GroupID: guid,
-        })
+				errChan <- err
+			}()
 
-        errChan <- err
-      }()
+			log.Println("Adding user to ws_store group in WS group message handler with userid: ", uid)
+			gcs.AddUserInGroup(guid, ws)
 
-      err := <-errChan; if err != nil {
-        log.Println("Error: join request failed in ws group handler: " , err)
-        str,_ := GroupMessageString(uid , guid , true , "Join Request failed" , utils.Text)
-        ws.WriteMessage(websocket.TextMessage , []byte(str))
-      }
+			err := <-errChan
+			if err != nil {
+				log.Println("Deleteing user from ws_store group in WS group message handler with user id ", uid)
+				gcs.DeleteUserInGroup(guid, ws)
+				log.Println("Error: join request failed in ws group handler: ", err)
+				str, _ := GroupMessageString(uid, guid, true, "Join Request failed", utils.Text)
+				ws.WriteMessage(websocket.TextMessage, []byte(str))
+			}
 
-    }else {
-      //create a group message (through database) and write back (ws)
-      errChan := make(chan error)
+		} else {
+			//create a group message (through database) and write back (ws)
+			found, _ := gcs.IsGroupMember(c.Request().Context(), guid, int32(uid))
+			if !found {
+				str, _ := GroupMessageString(uid, guid, true, "User not in group", utils.Text)
+				ws.WriteMessage(websocket.TextMessage, []byte(str))
+				continue
+			}
 
-      go func() {
+			errChan := make(chan error)
+			go func() {
 
-        err := gcs.CreateGroupMessage(c.Request().Context() , guid , req.Payload.Content , uid , string(req.Payload.TypeMsg))
-        errChan <- err
-      }()
-      
-      err := <-errChan
-      if err != nil {
+				err := gcs.CreateGroupMessage(c.Request().Context(), guid, req.Payload.Content, uid, string(req.Payload.TypeMsg))
+				errChan <- err
+			}()
 
-        log.Println("Error: message creatiob failed in WS group message: " ,err)
-        str,_ := GroupMessageString(uid , guid , true , "Message failed!" , utils.Text)
-        ws.WriteMessage(websocket.TextMessage , []byte(str))
-      }else {
+			err := <-errChan
+			if err != nil {
 
-        str,_ := GroupMessageString(uid , guid , false , req.Payload.Content , utils.Text)
-        //send str to group socket 
+				log.Println("Error: message creatiob failed in WS group message: ", err)
+				str, _ := GroupMessageString(uid, guid, true, "Message failed!", utils.Text)
+				ws.WriteMessage(websocket.TextMessage, []byte(str))
+			} else {
 
-      }
-    }
-    
-  }
+				str, _ := GroupMessageString(uid, guid, false, req.Payload.Content, utils.Text)
+				//Send str to group socket
+				errCh := make(chan error)
+				defer close(errCh)
 
-  log.Println("WS group handler has shutdown for uid: " , uid)
-  return c.JSON(http.StatusOK , "ws connection ended")
+				go func() {
+					err := gcs.SendMessageInGroup(c.Request().Context(), guid, GroupMessage{
+						Content: str,
+						Owner:   ws,
+					})
+
+					errCh <- err
+				}()
+
+				err := <-errCh
+				if err != nil {
+					log.Println("Error: message could not be send in group, ...... disconnecting socket")
+					gcs.DeleteClientFromAllGroups(c.Request().Context(), ws)
+
+					return c.JSON(http.StatusInternalServerError, "WS eneded , socket failed!")
+				}else {
+
+          log.Println("Group message successfully send!")
+        }
+			}
+		}
+	}
+
+  gcs.DeleteClientFromAllGroups(c.Request().Context() , ws)
+
+	log.Println("WS group handler has shutdown for uid: ", uid)
+	return c.JSON(http.StatusOK, "ws connection ended")
 
 }
 
+func GroupMessageString(userId int, groupID uuid.UUID, isError bool, content string, type_content utils.TypeStruct) (string, error) {
 
-func GroupMessageString(userId int , groupID uuid.UUID , isError bool , content string , type_content utils.TypeStruct) (string , error) {
+	data := map[string]interface{}{
+		"user_id":      userId,
+		"group_id":     groupID,
+		"is_error":     isError,
+		"content":      content,
+		"type_content": string(type_content),
+	}
 
-  data := map[string]interface{}{
-    "user_id": userId,
-    "group_id": groupID,
-    "is_error": isError,
-    "content": content,
-  }
+	JSONdata, err := json.Marshal(data)
+	if err != nil {
 
-  JSONdata,err := json.Marshal(data)
-  if err != nil {
+		log.Println("Error: cannot marsha data in GroupMessageString: ", err)
+		return "", err
+	}
 
-    log.Println("Error: cannot marsha data in GroupMessageString: " , err)
-    return "", err
-  }
-
-  return string(JSONdata) , nil
+	return string(JSONdata), nil
 }
-
 
 func GroupMessageResponseStringHandler(c echo.Context) error {
 
-  str,err := GroupMessageString(123 , uuid.New() , false , "This is an example of gropup message response" , utils.Text)
+	str, err := GroupMessageString(123, uuid.New(), false, "This is an example of gropup message response", utils.Text)
 
-  if err != nil {
-    log.Println("Error: GroupMessageResponseStringHandler failed! :" , err)
-    return c.JSON(http.StatusInternalServerError , "Error in getting string res")
-  }
+	if err != nil {
+		log.Println("Error: GroupMessageResponseStringHandler failed! :", err)
+		return c.JSON(http.StatusInternalServerError, "Error in getting string res")
+	}
 
-  return c.JSON(http.StatusOK , str)
+	return c.JSON(http.StatusOK, str)
 }
-
-
 
 type myCustomClaims struct {
 	UserID int `json:"user_id"`
