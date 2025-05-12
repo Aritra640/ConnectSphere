@@ -1,13 +1,31 @@
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState} from "recoil";
 import { X } from "lucide-react";
 import { FaGithub } from "react-icons/fa";
 import clsx from "clsx";
 import { HomeMenuAtom } from "@/store/atoms/homeMenu_atom";
+import { AuthStateAtom } from "@/store/atoms/authstate_atom";
+import { AuthModalAtom } from "@/store/atoms/authmodal_atom";
 
 export function MenuModal() {
   const [menuOpen, setMenuOpen] = useRecoilState(HomeMenuAtom);
+  const setAuthState = useSetRecoilState(AuthStateAtom);
+  const setAuthModal = useSetRecoilState(AuthModalAtom);
 
   if (!menuOpen) return null;
+
+  function Signin() {
+    
+    setAuthState("Signin");
+    setAuthModal(true);
+    setMenuOpen(false);
+  }
+
+  function Signup() {
+
+    setAuthState("Signup");
+    setAuthModal(true);
+    setMenuOpen(false);
+  }
 
   return (
     <div
@@ -27,11 +45,11 @@ export function MenuModal() {
 
         {/* Menu Items */}
         <div className="space-y-5 text-center mt-2 pt-2">
-          <button className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-xl transition font-medium cursor-pointer">
+          <button onClick={Signup} className="w-full bg-indigo-600 hover:bg-indigo-700 text-white py-2 rounded-xl transition font-medium cursor-pointer">
             Get Started
           </button>
 
-          <button className="w-full border border-indigo-500 hover:border-white text-indigo-400 hover:text-white py-2 rounded-xl transition font-medium cursor-pointer">
+          <button onClick={Signin} className="w-full border border-indigo-500 hover:border-white text-indigo-400 hover:text-white py-2 rounded-xl transition font-medium cursor-pointer">
             Login
           </button>
 

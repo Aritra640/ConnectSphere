@@ -1,6 +1,6 @@
 import { atom } from "recoil";
 
-export const authmodal = atom<true|false>({
+export const AuthModalAtom = atom<true|false>({
   default: false,
-  key: "authmodal",
+  key: "AuthModalAtom",
 });

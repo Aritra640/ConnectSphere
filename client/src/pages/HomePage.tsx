@@ -1,11 +1,29 @@
-import { useRecoilState } from "recoil";
+import { useRecoilState, useSetRecoilState } from "recoil";
 import { HomeMenuButton } from "@/components/global/menubutton";
 import { ConnectSphereIcon } from "@/icons/connectsphere_icon";
 import { HomeMenuAtom } from "@/store/atoms/homeMenu_atom";
 import { MenuModal } from "@/components/home/MenuModal";
+import { AuthStateAtom } from "@/store/atoms/authstate_atom";
+import { AuthModalAtom } from "@/store/atoms/authmodal_atom";
+import { AuthModal } from "@/components/Modals/AuthModal";
+import { OTPModal } from "@/components/Modals/OTPModal";
 
 export function HomePage() {
   const [menuOpen, setMenuOpen] = useRecoilState(HomeMenuAtom);
+  const setAuthState = useSetRecoilState(AuthStateAtom);
+  const setAuthModal = useSetRecoilState(AuthModalAtom);
+
+  function SigninPage() {
+    
+    setAuthState("Signin");
+    setAuthModal(true);
+  }
+
+  function SignupPage() {
+    
+    setAuthState("Signup");
+    setAuthModal(true);
+  }
 
   console.log("home menu status: " , menuOpen);
 
@@ -23,10 +41,10 @@ export function HomePage() {
         <div className="flex items-center space-x-4">
           {/* Hidden on small screens */}
           <div className="hidden md:flex items-center space-x-4">
-            <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-medium transition cursor-pointer">
+            <button onClick={SignupPage} className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-xl font-medium transition cursor-pointer">
               Get Started
             </button>
-            <button className="border border-indigo-600 text-indigo-400 hover:text-white hover:border-white px-4 py-2 rounded-xl font-medium transition cursor-pointer">
+            <button  onClick={SigninPage} className="border border-indigo-600 text-indigo-400 hover:text-white hover:border-white px-4 py-2 rounded-xl font-medium transition cursor-pointer">
               Sign In
             </button>
           </div>
@@ -40,6 +58,8 @@ export function HomePage() {
 
       {/* Modal */}
       <MenuModal />
+      <AuthModal />
+      <OTPModal  />
 
       {/* Main Content */}
       <main className="p-6">
