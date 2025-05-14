@@ -10,7 +10,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-//GenerateOTP generate otp concurrently and check if it is not repeated
+// GenerateOTP generate otp concurrently and check if it is not repeated
 func (ms *MailService) GenerateOTP(ctx context.Context) (string, error) {
 
 	otpFound := false
@@ -50,7 +50,7 @@ type GetOTPHandlerParam struct {
 	Email string `json:"email" validate:"required,email"`
 }
 
-//GetOTPHandler : HTTP handler to get otp
+// GetOTPHandler : HTTP handler to get otp
 func (ms *MailService) GetOTPHandler(c echo.Context) error {
 
 	var req GetOTPHandlerParam
@@ -104,9 +104,64 @@ func (ms *MailService) GetOTPHandler(c echo.Context) error {
 				"otp": otp,
 			})
 		}
-  
-  case <-c.Request().Context().Done():
-    log.Println("Error: OTPHandler timed out")
-    return c.JSON(http.StatusInternalServerError , "Timed Out")
+
+	case <-c.Request().Context().Done():
+		log.Println("Error: OTPHandler timed out")
+		return c.JSON(http.StatusInternalServerError, "Timed Out")
+	}
+}
+
+type VerifyOTPParam struct {
+	Email string `json:"email" validate:"required,email"`
+	OTP   string `json:"otp"`
+}
+
+func (ms *MailService) VerifyOTPHandler(c echo.Context) error {
+
+	var req VerifyOTPParam
+	if err := c.Bind(&req); err != nil {
+		log.Println("Error: VerifyOTP handler dodnot get correct request: ", err)
+		return c.JSON(http.StatusBadRequest, "Invalid Request")
+	}
+
+	if err := c.Validate(&req); err != nil {
+		log.Println("Error: Failed to validate request in VerifyOtpHandler: ", err)
+		return c.JSON(http.StatusBadRequest, "Invalid Type")
+	}
+
+	foundCh := make(chan bool)
+	errCh := make(chan error)
+
+	defer close(foundCh)
+	defer close(errCh)
+
+	go func() {
+		found, err := ms.Ots.VerifyOTP(c.Request().Context(), req.Email, req.OTP)
+		if err != nil {
+			errCh <- err
+		}
+		foundCh <- found
+	}()
+
+	select {
+	case <-c.Request().Context().Done():
+		log.Println("Request timed out in VerifyOTP Handler")
+		return c.JSON(http.StatusGatewayTimeout, "Timed Out")
+
+	case err := <-errCh:
+		log.Println("Error: error in VerifyOtpHandler: ", err)
+		return c.JSON(http.StatusBadRequest, "Invalid Request")
+
+	//TODO: use rate limiting
+	case found := <-foundCh:
+		if found {
+			return c.JSON(http.StatusOK, map[string]interface{}{
+				"Found": "true",
+			})
+		} else {
+			return c.JSON(http.StatusOK, map[string]interface{}{
+				"Found": "false",
+			})
+		}
 	}
 }
