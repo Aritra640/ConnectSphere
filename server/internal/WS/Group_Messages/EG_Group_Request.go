@@ -5,7 +5,6 @@ import (
 
 	"github.com/Aritra640/ConnectSphere/server/internal/utils"
 	"github.com/google/uuid"
-	"github.com/gorilla/websocket"
 	"github.com/labstack/echo/v4"
 )
 
@@ -23,11 +22,7 @@ func (gcs *GroupChatService) ExampleGroupRequestHandler(c echo.Context) error {
 
 func (gcs *GroupChatService) ExampleGroupMessageResponse(c echo.Context) error {
 
-  return c.JSON(http.StatusOK , GroupMessage{
-    UserID: 123,
-    ChatID: uuid.New(),
-    Content: "this is message content",
-    TypeMsg: utils.Text,
-    Owner: &websocket.Conn{},
-  })
+  str,_ := GroupMessageString(1234, uuid.New() , false , "this is a average group messsage response", utils.Text )
+
+  return c.JSON(http.StatusOK , str)
 }

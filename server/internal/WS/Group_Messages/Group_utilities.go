@@ -87,24 +87,24 @@ func (gcs *GroupChatService) EditGroupMessage(ctx context.Context, req EditGroup
 	return nil
 }
 
-func (gcs *GroupChatService) GroupHistoryByID(ctx context.Context, gid uuid.UUID)
-
-type DeleteGroupChatParam interface{}
-
-func (gcs *GroupChatService) DeleteGroupChat(ctx context.Context, req DeleteGroupChatParam)
-
-//------------------------Group utility-----------------------------------------
-
-type CreateNewGroupParam interface{}
-
-func (gcs *GroupChatService) CreateNewGroup(ctx context.Context, req CreateNewGroupParam)
-
-func (gcs *GroupChatService) GetGroupDesc(ctx context.Context, gid uuid.UUID)
-
-type EditGroupDetailParam interface{}
-
-func (gcs *GroupChatService) EditGroupDetail(ctx context.Context, req EditGroupDetailParam)
-
-type DeleteGroupParam interface{}
-
-func (gcs *GroupChatService) DeleteGroupByID(ctx context.Context, req DeleteGroupParam)
+// func (gcs *GroupChatService) GroupHistoryByID(ctx context.Context, gid uuid.UUID)
+//
+// type DeleteGroupChatParam interface{}
+//
+// func (gcs *GroupChatService) DeleteGroupChat(ctx context.Context, req DeleteGroupChatParam)
+//
+// //------------------------Group utility-----------------------------------------
+//
+// type CreateNewGroupParam interface{}
+//
+// func (gcs *GroupChatService) CreateNewGroup(ctx context.Context, req CreateNewGroupParam)
+//
+// func (gcs *GroupChatService) GetGroupDesc(ctx context.Context, gid uuid.UUID)
+//
+// type EditGroupDetailParam interface{}
+//
+// func (gcs *GroupChatService) EditGroupDetail(ctx context.Context, req EditGroupDetailParam)
+//
+// type DeleteGroupParam interface{}
+//
+// func (gcs *GroupChatService) DeleteGroupByID(ctx context.Context, req DeleteGroupParam)

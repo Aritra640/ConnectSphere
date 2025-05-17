@@ -1,5 +1,11 @@
 package mail
 
 type MailService struct {
-	Ots *OTPstore
+	Email     string
+	Password  string
+	Smtp      string
+	TestEmail string
 }
+
+
+var MailSetup = &MailService{}

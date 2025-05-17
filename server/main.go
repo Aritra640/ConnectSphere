@@ -6,14 +6,17 @@ import (
 	"errors"
 	"log"
 	"os"
+	"sync"
 	"time"
 
 	"github.com/Aritra640/ConnectSphere/server/Database/db"
 	controllers "github.com/Aritra640/ConnectSphere/server/internal/Controllers"
+	mail "github.com/Aritra640/ConnectSphere/server/internal/Mail-Server"
 	gcs "github.com/Aritra640/ConnectSphere/server/internal/WS/Group_Messages"
 	pcs "github.com/Aritra640/ConnectSphere/server/internal/WS/Personal_Messages"
 	tcr "github.com/Aritra640/ConnectSphere/server/internal/WS/test_chat_room"
 	"github.com/Aritra640/ConnectSphere/server/internal/auth"
+	"github.com/Aritra640/ConnectSphere/server/internal/cachestore"
 	"github.com/Aritra640/ConnectSphere/server/internal/config"
 	Internal_Validator "github.com/Aritra640/ConnectSphere/server/internal/validator"
 	"github.com/go-playground/validator/v10"
@@ -78,9 +81,8 @@ func main() {
 	auth.AuthSetup.Rts = &auth.RefreshTokenService{Queries: config.App.QueryObj}
 	auth.AuthSetup.Expiry = time.Hour * 24
 
-
-  //Group Service Setup 
-  gcs.GroupChatMessageSetup.JWT = config.App.JWT
+	//Group Service Setup
+	gcs.GroupChatMessageSetup.JWT = config.App.JWT
 
 	config.App.PCS = pcs.PersonalMessageSetup
 	config.App.GCS = gcs.GroupChatMessageSetup
@@ -91,9 +93,17 @@ func main() {
 	config.App.PCS.WS_store.RunWS(ctx)
 	config.App.GCS.RunAll(ctx)
 
+  //Setting up mail server 
+  mail.MailSetup.Email = os.Getenv("GOOGLE_EMAIL")
+  mail.MailSetup.Password = os.Getenv("GOOGLE_APP_PASSWORD")
+  mail.MailSetup.TestEmail = os.Getenv("TEST_EMAIL")
+  mail.MailSetup.Smtp = os.Getenv("SMTP")
+
+  go TimersRefresh(ctx)
+
 	e := echo.New()
 
-	//Test ws connection with authentication
+	//Test web socket connection with authentication
 	e.Any("/test_ws", tcr.TestChatRoom)
 
 	//Register the custom validator
@@ -101,9 +111,28 @@ func main() {
 		Validator: validator.New(),
 	}
 
-	//Use cors
+	//Use CORS
 	e.Use(middleware.CORS())
 
 	controllers.RoutesSetupV1(e)
 	e.Logger.Fatal(e.Start(":8080"))
+}
+
+//Refresh cache storage every 10 minutes
+func TimersRefresh(ctx context.Context){
+  timer := time.NewTicker(10 * time.Minute)
+  defer timer.Stop()
+
+  var wg = &sync.WaitGroup{}
+  log.Println("Refresh cache service started, task will eun every 10 minutes")
+
+  for t := range timer.C {
+    log.Printf("Running refresh cache task at %v" , t)
+    wg.Add(2)
+    go cachestore.CacheService.RefreshOtpStorage(ctx , wg)
+    go cachestore.CacheService.RefreshUnverifiedUserData(ctx,wg)
+  }
+
+  wg.Wait()
+  log.Println("Gracefully shutdown refresh-timer")
 }

@@ -4,7 +4,6 @@ import (
 	"sync"
 
 	"github.com/Aritra640/ConnectSphere/server/Database/db"
-	"github.com/Aritra640/ConnectSphere/server/internal/utils"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
@@ -13,7 +12,7 @@ type GroupChatService struct {
 	Queries *db.Queries
 	Groups  map[uuid.UUID]*Group
 	Mu      sync.Mutex
-  JWT     []byte
+	JWT     []byte
 }
 
 type Group struct {
@@ -24,6 +23,6 @@ type Group struct {
 }
 
 type GroupMessage struct {
-	Content string           `json:"content"`
-	Owner   *websocket.Conn  `json:"owner"`
+	Content string          `json:"content"`
+	Owner   *websocket.Conn `json:"owner"`
 }
