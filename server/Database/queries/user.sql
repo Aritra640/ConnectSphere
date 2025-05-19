@@ -36,3 +36,8 @@ UPDATE users
   set username = $2
 WHERE email = $1;
 
+-- name: UpdateUserPasswordByEmail :exec 
+UPDATE users 
+  set password_hashed = $2 
+WHERE email = $1;
+

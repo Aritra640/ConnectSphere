@@ -135,6 +135,22 @@ func (q *Queries) GetUsersAll(ctx context.Context) ([]User, error) {
 	return items, nil
 }
 
+const updateUserPasswordByEmail = `-- name: UpdateUserPasswordByEmail :exec
+UPDATE users 
+  set password_hashed = $2 
+WHERE email = $1
+`
+
+type UpdateUserPasswordByEmailParams struct {
+	Email          string
+	PasswordHashed string
+}
+
+func (q *Queries) UpdateUserPasswordByEmail(ctx context.Context, arg UpdateUserPasswordByEmailParams) error {
+	_, err := q.db.ExecContext(ctx, updateUserPasswordByEmail, arg.Email, arg.PasswordHashed)
+	return err
+}
+
 const updateUserPasswordByUsername = `-- name: UpdateUserPasswordByUsername :exec
 UPDATE users 
   set password_hashed = $2
