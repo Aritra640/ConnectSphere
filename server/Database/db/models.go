@@ -83,3 +83,9 @@ type User struct {
 	PasswordHashed string
 	CreatedAt      sql.NullTime
 }
+
+type UsersInfo struct {
+	UserID int32
+	Pimage sql.NullString
+	Pbio   sql.NullString
+}
