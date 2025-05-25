@@ -5,20 +5,15 @@ import { DashboardPage } from "./pages/DashboardPage";
 import { ChatDashboard } from "./pages/EXPage";
 
 export default function App() {
-
   return (
     <RecoilRoot>
-    <Router>
-
-      <Routes>
-
-        <Route path="/" element={<HomePage />} />
-        <Route path="/dashboard" element={<DashboardPage />} />
+      <Router>
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/dashboard" element={<DashboardPage />} />
           <Route path="/ex" element={<ChatDashboard />} />
-        
-      </Routes>
-
-    </Router>
+        </Routes>
+      </Router>
     </RecoilRoot>
   );
 }
