@@ -1,8 +1,11 @@
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { MainThemeIcon } from "../global/MainThemeIcon";
 import { MainThemeAtom } from "@/store/atoms/maintheme_atom";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { PersonalMessageSearch } from "./PersonalMessageSearchBar";
+import { PersonalMessageSection } from "./PersonalMessageSection";
+import { PersonalMessageSelectAtom } from "@/store/atoms/personalMessage_atom";
+import { useState } from "react";
 
 const SectionTheme = {
   Bright: "bg-white",
@@ -10,10 +13,30 @@ const SectionTheme = {
 };
 
 const messages = [
-  { Sender: "Anna", SenderProfile: "/profile.jpg", Message: "Hi hello", SendAt: "Sunday" },
-  { Sender: "Penn", SenderProfile: "/profile.jpg", Message: "Hi hello", SendAt: "Sunday" },
-  { Sender: "Abc", SenderProfile: "/profile.jpg", Message: "Hi hello", SendAt: "Sunday" },
-  { Sender: "Anena", SenderProfile: "/profile.jpg", Message: "Hi hello", SendAt: "Sunday" },
+  {
+    Sender: "Anna",
+    SenderProfile: "/profile.jpg",
+    Message: "Hi hello",
+    SendAt: "Sunday",
+  },
+  {
+    Sender: "Penn",
+    SenderProfile: "/profile.jpg",
+    Message: "Hi hello",
+    SendAt: "Sunday",
+  },
+  {
+    Sender: "Abc",
+    SenderProfile: "/profile.jpg",
+    Message: "Hi hello",
+    SendAt: "Sunday",
+  },
+  {
+    Sender: "Anena",
+    SenderProfile: "/profile.jpg",
+    Message: "Hi hello",
+    SendAt: "Sunday",
+  },
 ];
 
 const MessageBarThemes = {
@@ -30,10 +53,12 @@ export function Messageboard() {
         <h1 className="text-2xl md:text-3xl font-bold">Personal Messages</h1>
         <MainThemeIcon />
       </div>
-      
-      <section className={`rounded-xl h-[calc(100vh-100px)] shadow p-4 md:p-5 ${SectionTheme[theme]}`}>
+
+      <section
+        className={`rounded-xl flex gap-6 h-[calc(100vh-100px)] shadow p-4 md:p-5 ${SectionTheme[theme]}`}
+      >
         <aside
-          className={`w-44 h-full md:w-64 flex flex-col gap-4 p-4 md:p-6 rounded-xl ${MessageBarThemes[theme]}`}
+          className={`w-48 h-full md:w-72 flex flex-col gap-4 p-4 md:p-6 rounded-xl ${MessageBarThemes[theme]}`}
         >
           <PersonalMessageSearch />
           {messages.map((msg, index) => (
@@ -47,7 +72,7 @@ export function Messageboard() {
           ))}
         </aside>
 
-
+        <PersonalMessageSection Sender="User" SenderProfile="s.png" />
       </section>
     </main>
   );
@@ -72,9 +97,30 @@ function MessageBarComponent({
   SendAt,
 }: MessageBarCompProp) {
   const theme = useRecoilValue(MainThemeAtom);
+  const setPersonalMessage = useSetRecoilState(PersonalMessageSelectAtom);
+  const [select, setSelect] = useState<true | false>(false);
+
+  function SelectPerson() {
+    if (select) {
+      setPersonalMessage({
+        Valid: true,
+        Username: Sender,
+        UserId: 123,
+      });
+    } else {
+      setPersonalMessage({
+        Valid: false,
+        Username: "Unknown",
+        UserId: 123,
+      });
+    }
+
+    setSelect(p => !p);
+  };
 
   return (
     <div
+      onClick={SelectPerson}
       className={`rounded-xl px-3 py-2 flex items-center gap-3 transition-colors cursor-pointer ${MessageBarCompTheme[theme]}`}
     >
       <Avatar className="w-10 h-10">
@@ -89,10 +135,13 @@ function MessageBarComponent({
 
       <div className="flex flex-col">
         <h3 className="font-semibold text-sm">{Sender}</h3>
-        <p className="text-xs text-gray-600 dark:text-gray-300 truncate max-w-[120px]">{Message}</p>
-        <span className="text-[10px] text-gray-500 dark:text-gray-400">{SendAt}</span>
+        <p className="text-xs text-gray-600 dark:text-gray-300 truncate max-w-[120px]">
+          {Message}
+        </p>
+        <span className="text-[10px] text-gray-500 dark:text-gray-400">
+          {SendAt}
+        </span>
       </div>
     </div>
   );
 }
-

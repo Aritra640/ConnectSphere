@@ -5,7 +5,7 @@ import { SearchIcon } from "@/icons/search_icon";
 
 const Themes = {
   "Bright": "bg-white text-black hover:bg-gray-200",
-  "Dark": "bg-gray-800 text-white hover:bg-gray-700",
+  "Dark": "bg-gray-800 text-white hover:bg-gray-900",
 };
 
 export function PersonalMessageSearch() {
@@ -20,11 +20,11 @@ export function PersonalMessageSearch() {
 
 function SearchPersonalUser() {
 
-  return <div className="cursor-pointer flex items-center"><SearchIcon /></div>
+  return <div className="cursor-pointer flex items-center border-transparent"><SearchIcon /></div>
 }
 
 
 function InputComponent() {
 
-  return <Input type="email" placeholder="search by email" />
+  return <Input className="border-transparent" type="email" placeholder="search by email" />
 }
