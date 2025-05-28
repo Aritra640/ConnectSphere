@@ -5,11 +5,21 @@ import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
 import { PersonalMessageSearch } from "./PersonalMessageSearchBar";
 import { PersonalMessageSection } from "./PersonalMessageSection";
 import { PersonalMessageSelectAtom } from "@/store/atoms/personalMessage_atom";
-import { useState } from "react";
 
+// Tailwind theme classes
 const SectionTheme = {
   Bright: "bg-white",
   Dark: "bg-gray-800",
+};
+
+const MessageBarThemes = {
+  Bright: "bg-purple-100",
+  Dark: "bg-gray-700",
+};
+
+const MessageBarCompTheme = {
+  Bright: "bg-white hover:bg-purple-200",
+  Dark: "bg-gray-800 hover:bg-gray-600",
 };
 
 const messages = [
@@ -37,12 +47,43 @@ const messages = [
     Message: "Hi hello",
     SendAt: "Sunday",
   },
-];
+  {
+    Sender: "John",
+    SenderProfile: "/profile.jpg",
+    Message: "Hi hello",
+    SendAt: "Sunday",
+  },
+  {
+    Sender: "Jane",
+    SenderProfile: "/profile.jpg",
+    Message: "Hi hello",
+    SendAt: "Sunday",
+  },
+  {
+    Sender: "Doe",
+    SenderProfile: "/profile.jpg",
+    Message: "Hi hello",
+    SendAt: "Sunday",
+  }, {
+    Sender: "John",
+    SenderProfile: "/profile.jpg",
+    Message: "Hi hello",
+    SendAt: "Sunday",
+  },
+  {
+    Sender: "Jane",
+    SenderProfile: "/profile.jpg",
+    Message: "Hi hello",
+    SendAt: "Sunday",
+  },
+  {
+    Sender: "Doe",
+    SenderProfile: "/profile.jpg",
+    Message: "Hi hello",
+    SendAt: "Sunday",
+  },
 
-const MessageBarThemes = {
-  Bright: "bg-purple-100",
-  Dark: "bg-gray-700",
-};
+];
 
 export function Messageboard() {
   const theme = useRecoilValue(MainThemeAtom);
@@ -55,10 +96,10 @@ export function Messageboard() {
       </div>
 
       <section
-        className={`rounded-xl flex gap-6 h-[calc(100vh-100px)] shadow p-4 md:p-5 ${SectionTheme[theme]}`}
+        className={`rounded-xl overflow-hidden flex gap-6 h-[calc(100vh-100px)] shadow p-4 md:p-5 ${SectionTheme[theme]}`}
       >
         <aside
-          className={`w-48 h-full md:w-72 flex flex-col gap-4 p-4 md:p-6 rounded-xl ${MessageBarThemes[theme]}`}
+          className={`w-48 h-full md:w-72 flex flex-col gap-4 p-4 md:p-6 rounded-xl overflow-y-auto hide-scrollbar ${MessageBarThemes[theme]}`}
         >
           <PersonalMessageSearch />
           {messages.map((msg, index) => (
@@ -72,16 +113,11 @@ export function Messageboard() {
           ))}
         </aside>
 
-        <PersonalMessageSection Sender="User" SenderProfile="s.png" />
+        <PersonalMessageSection />
       </section>
     </main>
   );
 }
-
-const MessageBarCompTheme = {
-  Bright: "bg-white hover:bg-purple-200",
-  Dark: "bg-gray-800 hover:bg-gray-600",
-};
 
 interface MessageBarCompProp {
   Sender: string;
@@ -98,25 +134,14 @@ function MessageBarComponent({
 }: MessageBarCompProp) {
   const theme = useRecoilValue(MainThemeAtom);
   const setPersonalMessage = useSetRecoilState(PersonalMessageSelectAtom);
-  const [select, setSelect] = useState<true | false>(false);
 
   function SelectPerson() {
-    if (select) {
-      setPersonalMessage({
-        Valid: true,
-        Username: Sender,
-        UserId: 123,
-      });
-    } else {
-      setPersonalMessage({
-        Valid: false,
-        Username: "Unknown",
-        UserId: 123,
-      });
-    }
-
-    setSelect(p => !p);
-  };
+    setPersonalMessage({
+      Valid: true,
+      Username: Sender,
+      UserId: 123,
+    });
+  }
 
   return (
     <div
@@ -145,3 +170,4 @@ function MessageBarComponent({
     </div>
   );
 }
+

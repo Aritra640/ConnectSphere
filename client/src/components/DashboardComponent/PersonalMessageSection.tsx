@@ -6,9 +6,40 @@ import { Input } from "../ui/input";
 import { ScrollArea } from "../ui/scroll-area";
 import { SendIcon } from "@/icons/send_icon";
 import { MessageBox } from "../MessageComponent/MessageBox";
+import {
+  MessageTypeModal,
+  MessageTypeModalButton,
+} from "../Modals/MessageTypeModal";
+import { PersonalMessageSelectAtom } from "@/store/atoms/personalMessage_atom";
 
 const PersonalChats = [
   { Sender: "Anna", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
+  { Sender: "You", Message: "hey there", SendAt: "Sunday" },
   { Sender: "You", Message: "hey there", SendAt: "Sunday" },
 ];
 
@@ -27,16 +58,17 @@ const MessageAlign = {
   type2: "flex justify-end",
 };
 
-interface PersonalMessageSectionProp {
-  Sender: string;
-  SenderProfile: string;
-}
-
-export function PersonalMessageSection({
-  Sender,
-  SenderProfile,
-}: PersonalMessageSectionProp) {
+export function PersonalMessageSection() {
+  const PMSProp = useRecoilValue(PersonalMessageSelectAtom);
   const theme = useRecoilValue(MainThemeAtom);
+
+  if (!PMSProp.Valid) {
+    return (
+      <section
+        className={`rounded-2xl w-full flex flex-col justify-between gap-5 shadow p-4 md:p-5 ${CardThemes[theme]}`}
+      ></section>
+    );
+  }
 
   return (
     <section
@@ -46,19 +78,19 @@ export function PersonalMessageSection({
         className={`flex justify-start gap-3 rounded-2xl p-2 ${UserBlockThemes[theme]}`}
       >
         <Avatar>
-          <AvatarImage src={SenderProfile} alt={Sender} />
+          <AvatarImage src={PMSProp.Username} alt={PMSProp.Username} />
           <AvatarFallback>
-            {Sender.split(" ")
+            {PMSProp.Username.split(" ")
               .map((part) => part[0])
               .join("")
               .toUpperCase()}
           </AvatarFallback>
         </Avatar>
 
-        <div className="flex items-center text-xl">{Sender}</div>
+        <div className="flex items-center text-xl">{PMSProp.Username}</div>
       </div>
 
-      <ScrollArea className="flex-1 rounded-md border-transparent p-4">
+      <ScrollArea className="flex-1 rounded-md border-transparent p-4 overflow-y-auto">
         <div className="flex flex-col gap-2">
           {PersonalChats.map((msg, idx) => (
             <div
@@ -80,6 +112,7 @@ export function PersonalMessageSection({
       <div>
         <InputMessage />
       </div>
+      <MessageTypeModal />
     </section>
   );
 }
@@ -101,8 +134,8 @@ function InputMessage() {
         type="text"
         placeholder="Type your message here"
       />
+      <MessageTypeModalButton />
       <SendIcon />
     </div>
   );
 }
-
