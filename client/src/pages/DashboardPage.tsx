@@ -1,9 +1,10 @@
+import { Groupboard } from "@/components/DashboardComponent/GroupBoard";
 import { Homeboard } from "@/components/DashboardComponent/HomeBoard";
 import { Messageboard } from "@/components/DashboardComponent/MessageBoard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DashBoardAtom } from "@/store/atoms/dashboard_atom";
 import { MainThemeAtom } from "@/store/atoms/maintheme_atom";
-import { Home, MessageCircle, Settings, Users } from "lucide-react";
+import { Home, LogOut, MessageCircle, Settings, Users } from "lucide-react";
 import { useRecoilValue, useSetRecoilState } from "recoil";
 
 const DashboardTheme = {
@@ -56,6 +57,7 @@ export function DashboardPage() {
             <NavItem icon={<MessageCircle />} text="Messages" onClick={()=>{setDashboardState("Message")}}/>
             <NavItem icon={<Users />} text="Groups" onClick={()=>{setDashboardState("Group")}}/>
             <NavItem icon={<Settings />} text="Settings" onClick={()=>{setDashboardState("Setting")}}/>
+            <NavItem icon={<LogOut />} text="Logout" onClick={()=>{setDashboardState("Setting")}}/>
           </nav>
         </div>
       </aside>
@@ -63,6 +65,7 @@ export function DashboardPage() {
       <>
         {dashboardState == "Home" && <Homeboard />}
         {dashboardState == "Message" && <Messageboard />}
+        {dashboardState == "Group" && <Groupboard />}
       </>
 
     </div>
