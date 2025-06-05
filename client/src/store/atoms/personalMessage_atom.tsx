@@ -1,7 +1,7 @@
 import { atom } from "recoil";
 
 type PersonalMessageSelect = {
-  Valid: boolean
+  Valid: boolean;
   Username: string;
   UserId: number;
 }
