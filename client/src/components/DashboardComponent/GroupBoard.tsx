@@ -1,7 +1,11 @@
 import { MainThemeAtom } from "@/store/atoms/maintheme_atom";
-import { useRecoilValue } from "recoil";
+import { useRecoilValue, useSetRecoilState } from "recoil";
 import { MainThemeIcon } from "../global/MainThemeIcon";
 import { Avatar, AvatarFallback, AvatarImage } from "../ui/avatar";
+import { GroupMessageSelectAtom } from "@/store/atoms/groupMessage_atop";
+import { GroupMessageSection } from "./GroupMessageSection";
+import { GroupMessageSearch } from "./GroupSearch";
+import { NewGroup } from "./NewGroup";
 
 const SectionTheme = {
   Bright: "bg-white",
@@ -61,7 +65,8 @@ export function Groupboard() {
             MessageBarThemes[theme]
           }
         >
-
+          <GroupMessageSearch />
+          <NewGroup />
           {groupbardummy.map((msg, index) => (
             <GroupMessageBarComponent 
               key={index}
@@ -71,6 +76,8 @@ export function Groupboard() {
               LastMessageSendAt={msg.LastMessageSendAt} />
           ))}
         </aside>
+
+        <GroupMessageSection />
       </section>
     </main>
   );
@@ -90,9 +97,20 @@ function GroupMessageBarComponent({
   LastMessageSendAt,
 }: GroupMessageBarComponentProp) {
   const theme = useRecoilValue(MainThemeAtom);
+  const setGroupMessage = useSetRecoilState(GroupMessageSelectAtom);
+
+  function SelectGroup() {
+    setGroupMessage({
+      Valid: true,
+      GroupName: GroupName,
+      GroupAvatar: GroupProfile,
+      GroupId: "123",
+    });
+  }
 
   return (
     <div
+      onClick={SelectGroup}
       className={
         "rounded-xl px-3 py-2 flex items-center gap-3 transtition-colors cursor-pointer " +
         MessageBarCompTheme[theme]

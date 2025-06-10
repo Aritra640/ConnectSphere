@@ -1,6 +1,7 @@
 import { Groupboard } from "@/components/DashboardComponent/GroupBoard";
 import { Homeboard } from "@/components/DashboardComponent/HomeBoard";
 import { Messageboard } from "@/components/DashboardComponent/MessageBoard";
+import { SettingsBoard } from "@/components/DashboardComponent/SettingBoard";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { DashBoardAtom } from "@/store/atoms/dashboard_atom";
 import { MainThemeAtom } from "@/store/atoms/maintheme_atom";
@@ -66,6 +67,7 @@ export function DashboardPage() {
         {dashboardState == "Home" && <Homeboard />}
         {dashboardState == "Message" && <Messageboard />}
         {dashboardState == "Group" && <Groupboard />}
+        {dashboardState == "Setting" && <SettingsBoard />}
       </>
 
     </div>
